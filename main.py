@@ -46,7 +46,7 @@ def dump():
 
         text = requests.get(url).text
 
-        soup = BeautifulSoup(text)
+        soup = BeautifulSoup(text, features="html.parser")
         cars_cells = soup.find_all('div', {'class': 'bDfMI'}) or []
 
         make_cars = []
@@ -148,12 +148,14 @@ def generate_html():
         html += "</tr>"
     html += "</table></html>"
 
+    html = BeautifulSoup(html, features="html.parser").prettify()
+
     with open('report.html', 'w', encoding='utf-8') as f:
         f.write(html)
 
 
 if __name__ == '__main__':
-    dump()
+    # dump()
     # print_sorted()
     generate_html()
 
