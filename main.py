@@ -144,9 +144,16 @@ def generate_html():
         f.write(html)
 
 
+def open_report_in_browser():
+    import webbrowser
+    import os
+    url = os.path.abspath('report.html')
+    webbrowser.open_new_tab(url)
+
 
 if __name__ == '__main__':
     dump()
     generate_html()
+    open_report_in_browser()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
