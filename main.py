@@ -32,15 +32,15 @@ def dump():
     # with open('test.html', 'w', encoding='utf-8') as output_file:
     #     output_file.write(text)
 
-    matches = re.findall(r'data-testid="gallery-item-click-action-link" href="\./(.+?)"', text, flags=re.MULTILINE)
+    matches = re.findall(r'data-testid="gallery-item-click-action-link" href="(.+?)"', text, flags=re.MULTILINE)
     print(matches)
 
     cars: list[Car] = []
 
-    for idx, make in enumerate(matches):
+    for idx, url in enumerate(matches):
+        make = url.split('/')[-1]
         print(f"Parsing {make} ({idx + 1}/{len(matches)})")
 
-        url = 'https://assettoland.wixsite.com/assettoland/' + make
         text = requests.get(url).text
 
         soup = BeautifulSoup(text)
@@ -98,7 +98,7 @@ def print_sorted():
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    # dump()
+    dump()
     print_sorted()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
