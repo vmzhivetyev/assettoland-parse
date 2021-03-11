@@ -1,8 +1,3 @@
-# This is a sample Python script.
-
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-
 import requests
 import re
 from bs4 import BeautifulSoup
@@ -104,11 +99,6 @@ def read_dumped_cars():
     return cars
 
 
-def print_sorted():
-    for car in read_dumped_cars():
-        print(car.description)
-
-
 def generate_html():
     cars = read_dumped_cars().__reversed__()
 
@@ -154,9 +144,9 @@ def generate_html():
         f.write(html)
 
 
+
 if __name__ == '__main__':
-    # dump()
-    # print_sorted()
+    dump()
     generate_html()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
