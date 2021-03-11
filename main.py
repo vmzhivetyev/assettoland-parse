@@ -11,14 +11,17 @@ import jsonpickle
 import os
 from pathlib import Path
 
+from typing import List
+
 
 class Car:
-    def __init__(self, make, full_name, date, img_url, page_url):
+    def __init__(self, make, full_name, date, img_url, page_url, download_link):
         self.page_url = page_url
         self.img_url = img_url
         self.date = date
         self.full_name = full_name
         self.make = make
+        self.download_link = download_link
 
     @property
     def description(self):
@@ -50,16 +53,18 @@ def dump():
 
         for cell in cars_cells:
             img_url = cell.find('img').get('src')
-            # img_src is always none cuz its inserted later by JS script
 
             s = cell.find('h2').text
             match = re.search(r'Posted (.+):\s*(.+)', s)
-            date = match.group(1)
+            date = match.group(1).replace('\xa0', ' ').replace(',', '')
             name = match.group(2)
+
+            a = cell.find('a')
+            download_link = url if a is None else a["href"] or url
 
             # 'Sep 05, 2020'
             try:
-                date = datetime.strptime(date, '%b %d, %Y')
+                date = datetime.strptime(date, '%b %d %Y')
             except ValueError as e:
                 print(name, e)
                 date = None
@@ -68,7 +73,8 @@ def dump():
                                  full_name=name,
                                  date=date,
                                  img_url=img_url,
-                                 page_url=url))
+                                 page_url=url,
+                                 download_link=download_link))
 
         cars += make_cars
 
