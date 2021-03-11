@@ -18,5 +18,6 @@ There is no ability on assettoland to view all cars sorted by upload date.
 #### Parse site and generate up-to-date report by yourself:
 
 1) Clone repo
+1) Run `pip install -r requirements.txt`
 1) Run `main.py`
-2) Open generated `report.html` using your browser
+1) Open generated `report.html` using your browser
