@@ -87,8 +87,8 @@ def dump():
             f.write(json)
 
 
-def print_sorted():
-    cars = []
+def read_dumped_cars():
+    cars: List[Car] = []
 
     for file_name in Path('data').glob('*'):
         with open(file_name, 'r', encoding='utf-8') as f:
@@ -98,13 +98,63 @@ def print_sorted():
     cars = [x for x in cars if x.date is not None]
     cars.sort(key=lambda x: x.date)
 
-    for car in cars:
+    for x in cars:
+        x.img_url = x.img_url.split('/v1/')[0]
+
+    return cars
+
+
+def print_sorted():
+    for car in read_dumped_cars():
         print(car.description)
 
 
-# Press the green button in the gutter to run the script.
+def generate_html():
+    cars = read_dumped_cars().__reversed__()
+
+    html = f'''<html>
+    <style>
+    table, th, td {{
+      border: 0px solid black;
+      border-collapse: separate; /* allow spacing between cell borders */
+      border-spacing: 0 5px; /* NOTE: syntax is <horizontal value> <vertical value> */
+    }}
+    
+    table.center {{
+      margin-left: auto; 
+      margin-right: auto;
+    }}
+
+    td {{
+       padding-left: 20px;
+    }}
+
+    tr {{
+        padding-top: 10px;
+    }}
+    </style>
+    <table class="center">
+    <tr><th>{"</th><th>".join(['', ''])}</th></tr>'''
+    for car in cars:
+        img = f'<img src="{car.img_url}" height="150"/>'
+        html += f'<tr><td>{img}</td>'
+
+        lines = [car.full_name,
+                 car.date.strftime("%d %b %Y"),
+                 f'<a href="{car.download_link}">Download</a>']
+
+        html += f'<td><br>{"</br><br>".join(lines)}</br></td>'
+
+        html += "</tr>"
+    html += "</table></html>"
+
+    with open('report.html', 'w', encoding='utf-8') as f:
+        f.write(html)
+
+
 if __name__ == '__main__':
     dump()
-    print_sorted()
+    # print_sorted()
+    generate_html()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
