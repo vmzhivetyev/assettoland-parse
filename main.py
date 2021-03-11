@@ -1,6 +1,7 @@
 import requests
 import re
 from bs4 import BeautifulSoup
+import html
 from datetime import datetime
 import jsonpickle
 import os
@@ -10,18 +11,14 @@ from typing import List
 
 
 class Car:
-    def __init__(self, make, full_name, date, img_url, page_url, download_link):
+    def __init__(self, make, full_name, date, img_url, page_url, download_link, description):
         self.page_url = page_url
         self.img_url = img_url
         self.date = date
         self.full_name = full_name
         self.make = make
         self.download_link = download_link
-
-    @property
-    def description(self):
-        date_str = self.date.strftime("%d %b %Y")
-        return f'{date_str}: {self.full_name} {self.page_url}'
+        self.description = description
 
 
 def dump():
@@ -57,6 +54,14 @@ def dump():
             a = cell.find('a')
             download_link = url if a is None else a["href"] or url
 
+            spans = set([x.text for x in cell.find_all('span')])
+            spans = [html.unescape(x).replace('\xa0', ' ').strip() for x in spans]
+            description = [x for x in spans
+                           if not x.startswith('Posted')
+                           and x != 'MORE INFO'
+                           and x != name]
+            description = [re.sub(r' +', ' ', x) for x in description]
+
             # 'Sep 05, 2020'
             try:
                 date = datetime.strptime(date, '%b %d %Y')
@@ -69,7 +74,8 @@ def dump():
                                  date=date,
                                  img_url=img_url,
                                  page_url=url,
-                                 download_link=download_link))
+                                 download_link=download_link,
+                                 description=description))
 
         cars += make_cars
 
@@ -126,12 +132,34 @@ def generate_html():
     <table class="center">
     <tr><th>{"</th><th>".join(['', ''])}</th></tr>'''
     for car in cars:
+        def filter_description():
+            desc = car.description
+            desc.sort()
+            desc.reverse()
+
+            desc_filtered = []
+            for x in desc:
+                bad = False
+                for y in desc_filtered:
+                    if x in y:
+                        bad = True
+                if not bad:
+                    desc_filtered.append(x)
+
+            return desc_filtered
+
         img = f'<img src="{car.img_url}" height="150"/>'
         html += f'<tr><td>{img}</td>'
 
-        lines = [car.full_name,
-                 car.date.strftime("%d %b %Y"),
-                 f'<a href="{car.download_link}">Download</a>']
+        lines = [
+            car.full_name,
+            car.date.strftime("%d %b %Y"),
+            '',
+        ]
+        lines.extend([x for x in filter_description() if x != '&'])
+        lines.extend([
+            f'<a href="{car.download_link}">Download</a>'
+        ])
 
         html += f'<td><br>{"</br><br>".join(lines)}</br></td>'
 
