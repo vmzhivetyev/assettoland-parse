@@ -39,7 +39,8 @@ def dump():
         text = requests.get(url).text
 
         soup = BeautifulSoup(text, features="html.parser")
-        cars_cells = soup.find_all('div', {'class': 'bDfMI'}) or []
+        # _1ozXL is class of root node of a car cell
+        cars_cells = soup.find_all('div', {'class': '_1ozXL'}) or []
 
         make_cars = []
 
